@@ -163,7 +163,7 @@ What is the null model?
 
 What is the saturated model?  
 
-1. **total biomass as a function of SLA, water treatment, and species**  
+1. **total biomass as a function of specific leaf area (SLA), water treatment, and species**  
 
 In class we are going to try two more models:  
 
