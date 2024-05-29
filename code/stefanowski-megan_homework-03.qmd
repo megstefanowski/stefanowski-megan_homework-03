@@ -1,0 +1,177 @@
+---
+title: "stefanowski-megan_homework-03"
+format: html
+editor: visual
+---
+
+forked repository: https://github.com/megstefanowski/stefanowski-megan_homework-03
+
+```{r}
+# Load packages
+install.packages("GGally")
+install.packages("MuMIn")
+# general use
+library(tidyverse)
+library(readxl)
+library(here)
+library(janitor)
+
+# visualizing pairs
+library(GGally)
+
+# model selection
+library(MuMIn)
+
+# model predictions
+library(ggeffects)
+
+# model tables
+library(gtsummary)
+library(flextable)
+library(modelsummary)
+
+# Load and view data
+drought_exp <- read_xlsx(path = here("data", 
+                                     "Valliere_etal_EcoApps_Data.xlsx"),
+                         sheet = "First Harvest")
+
+# quick look at data 
+str(drought_exp)
+class(drought_exp)
+```
+
+```{r}
+library(GGally)
+
+# Cleaning data
+# cleaning
+drought_exp_clean <- drought_exp %>% 
+  clean_names() %>% # nicer column names
+  mutate(species_name = case_when( # adding column with species scientific names
+    species == "ENCCAL" ~ "Encelia californica", # bush sunflower
+    species == "ESCCAL" ~ "Eschscholzia californica", # California poppy
+    species == "PENCEN" ~ "Penstemon centranthifolius", # Scarlet bugler
+    species == "GRICAM" ~ "Grindelia camporum", # great valley gumweed
+    species == "SALLEU" ~ "Salvia leucophylla", # Purple sage
+    species == "STIPUL" ~ "Nasella pulchra", # Purple needlegrass
+    species == "LOTSCO" ~ "Acmispon glaber" # deerweed
+  )) %>% 
+  relocate(species_name, .after = species) %>% # moving species_name column after species
+  mutate(water_treatment = case_when( # adding column with full treatment names
+    water == "WW" ~ "Well watered",
+    water == "DS" ~ "Drought stressed"
+  )) %>% 
+  relocate(water_treatment, .after = water) # moving water_treatment column after water
+
+# Visualizing
+
+## correlations 
+
+#| fig-height: 8
+#| fig-width: 8
+
+ggpairs(drought_exp_clean, # data frame
+        columns = c("leaf_dry_weight_g", # columns to visualize
+                    "sla", 
+                    "shoot_g", 
+                    "root_g", 
+                    "total_g"), 
+        upper = list(method = "pearson")) + # calculating Pearson correlation coefficient
+  theme_bw() + # cleaner theme
+  theme(panel.grid = element_blank()) # getting rid of gridlines
+```
+
+# 1. Multiple linear regression
+
+## a. **Make a table *or* list of all the models from class and the last one you constructed on your own. Write a caption for your table.**
+
+Model 0: Null model: total biomass not predicted by any of these variables
+
+Model 1: Saturated model: total biomass predicted by specific leaf area (SLA), water treatment, and species
+
+Model 2: total biomass predicted by SLA and water treatment
+
+Model 3: total biomass predicted by SLA and species
+
+Model 4: total biomass predicted by water treatment and species
+
+```{r}
+#Write a caption
+cat("Table 1: Comparing Predictive Models for Total Plant Biomass. The table presents a null model (Model 0) with no predictors to four other models that include combinations of specific leaf area (SLA), water treatment, and species as predictors. Each row corresponds to a different model, detailing the included predictors and their effects on the predicted total plant biomass")
+
+# Constructing models
+# null model
+model0 <- lm(total_g ~ 1, # formula
+             data = drought_exp_clean) # data frame
+
+# model 1: SLA, treatment, and species 
+model1 <- lm(total_g ~ sla + water_treatment + species_name,
+             data = drought_exp_clean)
+par(mfrow = c(2, 2))
+
+# model 2: SLA and treatment
+model2 <- lm(total_g ~ sla + water_treatment,
+             data = drought_exp_clean)
+# model 3: SLA and species
+model3 <- lm(total_g ~ sla + species_name, 
+             data = drought_exp_clean)
+# model 4: treatment and species 
+model4 <- lm(total_g ~ water_treatment + species_name, 
+             data = drought_exp_clean)
+
+# Make model selection table
+model.sel(model0,
+          model1, 
+          model2, 
+          model3, 
+          model4)
+
+```
+
+## b. Write a 5-6 sentence "statistical methods" section
+
+## c. **Make a visualization of the model predictions with underlying data for your "best" model.**
+
+Lowest AIC: model 4 (treatment and species)
+
+```{r}
+# Run diagnostics for model 4
+par(mfrow = c(2, 2))
+plot(model4)
+```
+
+Residuals:
+
+Homoscedastic, normal, outliers = 17, 13, 21
+
+```{r}
+# Print model coefficients 
+summary(model4)
+```
+
+Interetation of model coefficents: you expect a 0.11695 +/- 0.017 g increase in total plant biomass between well watered and drought treated plants.
+
+when plants are drought treated, you expect a total biomass of 0.05455 +/- 2.02g.
+
+ASSUMPTIONS
+
+1.  Linear relationship btwn response + predictor variables
+2.  independent errors
+3.  homoscedastic residuals
+4.  normally distributed errors
+
+```{r}
+# model summary
+modelsummary ::modelsummary(
+  list(
+  "null" = model0, 
+  "model 1" = model1, 
+  "model 2" = model2,  
+  "model 3" = model3, 
+  "model 4" = model4
+  
+)
+)
+```
+
+## c. Make a visualization
