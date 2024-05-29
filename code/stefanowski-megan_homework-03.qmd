@@ -175,3 +175,41 @@ modelsummary ::modelsummary(
 ```
 
 ## c. Make a visualization
+
+# 2. Affective visualization
+
+```{r}
+# Make a plot to use as reference for my visualization
+library(readxl)
+Exercise <- read_excel("Exercise.xls") # load data
+
+Exercise <- mutate(Exercise, Index = row_number())
+colnames(Exercise)
+
+names(Exercise)
+
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+# Assuming Exercise is your data frame and it's already loaded
+# Check if 'Index' is in the names of Exercise, if not, add it
+if (!"Index" %in% names(Exercise)) {
+  Exercise <- Exercise %>%
+    mutate(Index = row_number())
+}
+
+# Correct plotting code with geom_segment
+ggplot(Exercise, aes(x = Index, xend = Index, y = Mood_before, yend = Mood_after, color = Exercise_type)) +
+  geom_segment(size = 1) +  # Add this line to actually draw the segments
+  scale_color_brewer(palette = "Set1") +  # Use a color palette
+  labs(title = "Mood Before and After Each Exercise Session",
+       x = "Exercise Session (Chronological Order)",
+       y = "Mood Level",
+       color = "Exercise Type") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))  # Rotate x-axis labels
+
+```
