@@ -1,0 +1,67 @@
+---
+title: "stefanowski-megan_homework03"
+format: html
+date: 6/2/2024
+editor: visual
+author: Megan Stefanowski
+---
+
+forked repository: https://github.com/megstefanowski/stefanowski-megan_homework-03
+
+# 1. Multiple linear regression
+
+```{r}
+# Load packages
+library(tidyverse)
+library(readxl)
+library(here)
+library(janitor)
+
+# visualizing pairs
+library(GGally)
+
+# model selection
+library(MuMIn)
+
+# model predictions
+library(ggeffects)
+
+# model tables
+library(gtsummary)
+library(flextable)
+library(modelsummary)
+library(knitr)
+
+
+# Load dataframe
+drought_exp <- read_xlsx(path = "/Users/megstef/Desktop/ENVS-193DS/Git/new-repository/stefanowski-megan_homework-03/data/Valliere_etal_EcoApps_Data.xlsx", 
+                         sheet = "First Harvest")
+
+# quick look at data 
+str(drought_exp)
+class(drought_exp)
+```
+
+```{r}
+# Cleaning data
+drought_exp_clean <- drought_exp %>% 
+  clean_names() %>% # nicer column names
+  mutate(species_name = case_when( # adding column with species scientific names
+    species == "ENCCAL" ~ "Encelia californica", # bush sunflower
+    species == "ESCCAL" ~ "Eschscholzia californica", # California poppy
+    species == "PENCEN" ~ "Penstemon centranthifolius", # Scarlet bugler
+    species == "GRICAM" ~ "Grindelia camporum", # great valley gumweed
+    species == "SALLEU" ~ "Salvia leucophylla", # Purple sage
+    species == "STIPUL" ~ "Nasella pulchra", # Purple needlegrass
+    species == "LOTSCO" ~ "Acmispon glaber" # deerweed
+  )) %>% 
+  relocate(species_name, .after = species) %>% # moving species_name column after species
+  mutate(water_treatment = case_when( # adding column with full treatment names
+    water == "WW" ~ "Well watered",
+    water == "DS" ~ "Drought stressed"
+  )) %>% 
+  relocate(water_treatment, .after = water) # moving water_treatment column after water
+
+# Preview clean data
+head(drought_exp_clean)
+```
