@@ -1,16 +1,17 @@
 ---
-title: "stefanowski-megan_homework-03"
+title: "Homework 3"
+date: 6/2/2024
 format: html
 editor: visual
+author: Megan Stefanowski
 ---
 
 forked repository: https://github.com/megstefanowski/stefanowski-megan_homework-03
 
+# 1. Multiple linear regression
+
 ```{r}
 # Load packages
-install.packages("GGally")
-install.packages("MuMIn")
-# general use
 library(tidyverse)
 library(readxl)
 library(here)
@@ -29,10 +30,11 @@ library(ggeffects)
 library(gtsummary)
 library(flextable)
 library(modelsummary)
+library(knitr)
 
-# Load and view data
-drought_exp <- read_xlsx(path = here("data", 
-                                     "Valliere_etal_EcoApps_Data.xlsx"),
+
+# Load dataframe
+drought_exp <- read_xlsx(path = "/Users/megstef/Desktop/ENVS-193DS/Git/new-repository/stefanowski-megan_homework-03/data/Valliere_etal_EcoApps_Data.xlsx", 
                          sheet = "First Harvest")
 
 # quick look at data 
@@ -41,10 +43,8 @@ class(drought_exp)
 ```
 
 ```{r}
-library(GGally)
 
 # Cleaning data
-# cleaning
 drought_exp_clean <- drought_exp %>% 
   clean_names() %>% # nicer column names
   mutate(species_name = case_when( # adding column with species scientific names
@@ -63,41 +63,13 @@ drought_exp_clean <- drought_exp %>%
   )) %>% 
   relocate(water_treatment, .after = water) # moving water_treatment column after water
 
-# Visualizing
-
-## correlations 
-
-#| fig-height: 8
-#| fig-width: 8
-
-ggpairs(drought_exp_clean, # data frame
-        columns = c("leaf_dry_weight_g", # columns to visualize
-                    "sla", 
-                    "shoot_g", 
-                    "root_g", 
-                    "total_g"), 
-        upper = list(method = "pearson")) + # calculating Pearson correlation coefficient
-  theme_bw() + # cleaner theme
-  theme(panel.grid = element_blank()) # getting rid of gridlines
+# Preview clean data
+head(drought_exp_clean)
 ```
-
-# 1. Multiple linear regression
 
 ## a. **Make a table *or* list of all the models from class and the last one you constructed on your own. Write a caption for your table.**
 
-Model 0: Null model: total biomass not predicted by any of these variables
-
-Model 1: Saturated model: total biomass predicted by specific leaf area (SLA), water treatment, and species
-
-Model 2: total biomass predicted by SLA and water treatment
-
-Model 3: total biomass predicted by SLA and species
-
-Model 4: total biomass predicted by water treatment and species
-
 ```{r}
-#Write a caption
-cat("Table 1: Comparing Predictive Models for Total Plant Biomass. The table presents a null model (Model 0) with no predictors to four other models that include combinations of specific leaf area (SLA), water treatment, and species as predictors. Each row corresponds to a different model, detailing the included predictors and their effects on the predicted total plant biomass")
 
 # Constructing models
 # null model
@@ -119,7 +91,29 @@ model3 <- lm(total_g ~ sla + species_name,
 model4 <- lm(total_g ~ water_treatment + species_name, 
              data = drought_exp_clean)
 
-# Make model selection table
+```
+
+```{r}
+# Making a table
+
+# Create data frame with all model information
+model_info <- data.frame(
+  Model_Number = c("0 (null)", "1 (saturated)", 2, 3, 4),
+  Predictors = c("None", "SLA, treatment, species", "SLA, treatment", "SLA, species", "treatment, species")
+)
+
+# Make a table 
+kable(model_info, # table
+      caption = "Table 1: Comparing Predictive Models for Total Plant Biomass. This table summarizes five regression models, ranging from a null model (Model 0) with no predictors to four complex models incorporating various combinations of specific leaf area (SLA), water treatment, and species. Each row lists a model by its number and details the predictors used.", # caption 
+      col.names = c("Model", "Predictors")) # label columns
+
+
+```
+
+## b. Write a 5-6 sentence "statistical methods" section
+
+```{r}
+# Make model selection table to assess AIC 
 model.sel(model0,
           model1, 
           model2, 
@@ -128,88 +122,120 @@ model.sel(model0,
 
 ```
 
-## b. Write a 5-6 sentence "statistical methods" section
-
-## c. **Make a visualization of the model predictions with underlying data for your "best" model.**
-
-Lowest AIC: model 4 (treatment and species)
-
 ```{r}
-# Run diagnostics for model 4
-par(mfrow = c(2, 2))
-plot(model4)
+# Look at diagnostic plots for model 4
+par(mfrow = c(2, 2)) #display 4 plots in 2x2 grid
+plot(model4) # base R residuals
 ```
 
-Residuals:
-
-Homoscedastic, normal, outliers = 17, 13, 21
-
 ```{r}
-# Print model coefficients 
+# Look at model 4 coefficents 
 summary(model4)
 ```
 
-Interetation of model coefficents: you expect a 0.11695 +/- 0.017 g increase in total plant biomass between well watered and drought treated plants.
+To examine the influence of water treatment, plant species, and specific leaf area on total plant biomass, I constructed five linear regression models. To determine which model best described the variations in plant biomass, I used a model selection table to evaluate each model's Akaike Information Criterion (AIC). Model 4, which included the variables water treatment and species, had the lowest AIC, which suggested it might be the best model since it accounted for the most variance in biomass with the least complexity. To check that Model 4 conformed to the assumptions of linear regression--- linear relationship between variables, independent errors, homoscedasticity, and normality of residuals---I examined its diagnostic plots. The plots indicated that these conditions were likely met. I then looked at Model 4's coefficient summary to analyze it's slope, intercept, and level estimates, which revealed significant differences in biomass between well watered and drought treated conditions, as well as biomass variations across the different plant species.
 
-when plants are drought treated, you expect a total biomass of 0.05455 +/- 2.02g.
-
-ASSUMPTIONS
-
-1.  Linear relationship btwn response + predictor variables
-2.  independent errors
-3.  homoscedastic residuals
-4.  normally distributed errors
+## c. **Make a visualization of the model predictions with underlying data for your "best" model.**
 
 ```{r}
-# model summary
-modelsummary ::modelsummary(
-  list(
-  "null" = model0, 
-  "model 1" = model1, 
-  "model 2" = model2,  
-  "model 3" = model3, 
-  "model 4" = model4
-  
-)
-)
+# calculate model predictions
+model4_preds <- ggpredict(model4, 
+                          terms = c("water_treatment", "species_name"))
+
+# make visualization
+ggplot(model4_preds, aes(x = x, y = predicted, color = x)) +  # plot model predictions
+  geom_jitter(data = drought_exp_clean, # plot original underlying data
+              aes(x = water_treatment, y = total_g, color = water_treatment), # assign variables
+              width = 0.2, alpha = 0.2) +  # Adjust point size and set alpha = 0.2 for transparency
+  geom_line() +
+  geom_point(width = 0.1, alpha = 0.7) + # plot prediction points
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, size = 0.4) + # add error bars
+  labs(title = "Predicted Impact of Water Treatment and Species on Plant Biomass", # Title
+       x = "Water treatment",  # Axis labels
+       y = "Biomass (g)") + 
+  scale_color_manual(name = "Water treatment", 
+                     values = c("Well watered" = "Skyblue",  
+                                "Drought stressed" = "Brown")) + # set colors
+  facet_wrap(~ species_name) +
+  theme_classic() + # set theme
+  theme_classic(base_family = "Times") + # change font
+  theme(panel.grid = element_blank(), # remove gridlines 
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 8),  # Adjust x axis text size and rotate for better readability
+        legend.position = "none")  # Remove legend
+
 ```
 
-## c. Make a visualization
+## d. Write a caption for your visualization
+
+This visualization illustrates the predicted effects of water treatment types---well watered and drought stressed---on the biomass of different plant species. Each point represents observed data points, while opaque lines and error bars indicate the model's predictions and their confidence intervals. The plot is faceted by species to clearly show the differential impact across species under varying water conditions.
+
+Data from Valliere, Justin; Zhang, Jacqueline; Sharifi, M.; Rundel, Philip (2019).Dryad. https://doi.org/10.5061/dryad.v0861f7.
+
+## e. Write a 3-4 sentence results section
+
+Model 4, which included both water treatment and plant species as predictors, best described variations in plant biomass, with a notably lower Akaike Information Criterion (AIC = 153.4) than other models and an F-statistic of 27.08, significant at p \< 0.0001. On average, well watered plants had higher biomass than those under drought stressed conditions, and Grindelia camporum showed the highest average increase in biomass. This difference was significantly higher than other species which presented lower average biomass levels, indicating a substantial variability in how different species respond to water stress.
 
 # 2. Affective visualization
 
+## a. **Describe in words what an affective visualization could look like for your personal data**
+
+One possible way to present my personal data in an affective visualization could be to plot every exercise session on a bar graph, colored by exercise type, with the y-axis points starting at my mood score before the workout and extending up to my mood score after. I could include different symbols and color combinations to incorporate other categorical variables I recorded, such as where the workout was done, who I was with, or facet the plot to also show the effect on numerical variables like exertion and how tired I was the night after the session.
+
+## b. **Create a sketch (on paper) of your idea.**![](images/IMG_878054784A2E-1-01.jpeg)
+
 ```{r}
 # Make a plot to use as reference for my visualization
-library(readxl)
 Exercise <- read_excel("Exercise.xls") # load data
+Exercise <- Exercise %>%
+    mutate(Index = row_number()) # Index data points chronological
 
-Exercise <- mutate(Exercise, Index = row_number())
-colnames(Exercise)
-
-names(Exercise)
-
-```
-
-```{r}
-library(ggplot2)
-library(dplyr)
-
-# Assuming Exercise is your data frame and it's already loaded
-# Check if 'Index' is in the names of Exercise, if not, add it
-if (!"Index" %in% names(Exercise)) {
-  Exercise <- Exercise %>%
-    mutate(Index = row_number())
-}
-
-# Correct plotting code with geom_segment
-ggplot(Exercise, aes(x = Index, xend = Index, y = Mood_before, yend = Mood_after, color = Exercise_type)) +
-  geom_segment(size = 1) +  # Add this line to actually draw the segments
-  scale_color_brewer(palette = "Set1") +  # Use a color palette
+# Make plot
+ggplot(Exercise, aes(x = Index,
+                     y = Mood_before, yend = Mood_after, color = Exercise_type)) + # make each bar stop at mood before score and extend to mood after score
+  geom_segment(size = 1) +  
+  scale_color_brewer(palette = "Set1") +   # set colors
   labs(title = "Mood Before and After Each Exercise Session",
-       x = "Exercise Session (Chronological Order)",
-       y = "Mood Level",
-       color = "Exercise Type") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5))  # Rotate x-axis labels
+       x = "Workout (Chronological)",
+       y = "Mood Level", # add titles
+       color = "Exercise Type") + # add legend
+  theme_minimal() # set theme
+# keep gridlines to use for reference
 
 ```
+
+## c. Make a draft of your visualization
+
+![](images/IMG_0552-01.jpg)
+
+## d. Artist statement
+
+\
+This affective visualization plots the physical and mental health aspects of my fitness log over 37 days, presenting details like the type of exercise I did and for how long, whether I was indoors or outdoors, alone or with friends, and my mood before and after exercising, rated on a scale from 1-10. Each workout session is represented by a colored bar whose width indicates the duration---each grid square equals 20 minutes. The height of each bar shows the change in my mood from start to end.
+
+I was inspired by Stefanie Posavec and Giorgia Lupi's Dear Data project, especially Lupi's visual for "A week of books we own", which used colorful, coded boxes to display both numerical and categorical information using symbols. I started with a basic bar plot in R to use as a reference and then used Notability on my iPad to add symbols and give the piece a hand-drawn feel.
+
+# 3. Statistical critique
+
+## a. Revisit and summarize
+
+What are the statistical tests the authors are using to address their main research question?
+
+The authors use binomial testing, Chi-square analysis, Wilcoxon test, and Spearman correlation testing to measure comsumer attitude, awareness, and willingness to support circular fashion models across different demographics.
+
+![](images/Screen%20Shot%202024-05-29%20at%201.06.02%20PM.png)
+
+## b. Visual clarity
+
+The authors did not provide any visual representations of the tests they ran, but only provided tables such as Table 2 that list their findings. The tables are organized well and the categories they use make it easy to interpret the results, but adding some visual elements such as charts or graphs could really help highlight the importance of the correlations they found in their tests. They could also improve their presentation by calculating summary statistics and including more general conclusions, using the detailed data in the tables as underlying data points. This would make the results section more impactful, highlight the most relevant elements, and paint a fuller picture of the study.\
+
+## c. Aesthetic clarity
+
+The paper's visual appeal is significantly reduced by the author's reliance solely on tables, and could be improved by including different plot types and colors. While the tables are straightforward and present the findings clearly, the high data:ink ratio, although useful for examining raw data, shouldn't be the only method of presentation. The paper would benefit from including more visually engaging representations, maybe with a lower data:ink ratio, especially if it helps to emphasize key findings and the significance of the tests ran.
+
+## d. Recommendations
+
+One suggestion for an effective visualization would be to create a faceted bar chart showing the count of "Yes" and "No" responses to the different circular models, faceted to seperate graphs into "Knowledge" and "Willingness to pay" plots. The y-axis would represent count, and each circular model type would be listed on the x-axis and contain a red bar showing how many people responded "No", and a green bar to represent the number of "Yes" received.
+
+This could be plotted in R using ggplot's geom_col function. X would represent each of the 8 different circular models, with the y-axis displaying the count of responses. "Fill", would be used to assign different colors to "yes" responses vs "no" and facet_grid would create two seperate plots for categories "Knowledge" and "Willingness to support".
+
+\
