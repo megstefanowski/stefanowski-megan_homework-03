@@ -128,3 +128,43 @@ plot(model4) # base R residuals
 # Look at model 4 coefficents 
 summary(model4)
 ```
+
+To examine the influence of water treatment, plant species, and specific leaf area on total plant biomass, I constructed five linear regression models. To determine which model best described the variations in plant biomass, I used a model selection table to evaluate each model's Akaike Information Criterion (AIC). Model 4, which included the variables water treatment and species, had the lowest AIC, which suggested it might be the best model since it accounted for the most variance in biomass with the least complexity. To check that Model 4 conformed to the assumptions of linear regression--- linear relationship between variables, independent errors, homoscedasticity, and normality of residuals---I examined its diagnostic plots. The plots indicated that these conditions were likely met. I then looked at Model 4's coefficient summary to analyze it's slope, intercept, and level estimates, which revealed significant differences in biomass between well watered and drought treated conditions, as well as biomass variations across the different plant species.
+
+## c. **Make a visualization of the model predictions with underlying data for your "best" model.**
+
+```{r}
+# calculate model predictions
+model4_preds <- ggpredict(model4, 
+                          terms = c("water_treatment", "species_name"))
+
+# make visualization
+ggplot(model4_preds, aes(x = x, y = predicted, color = x)) +  # plot model predictions
+  geom_jitter(data = drought_exp_clean, # plot original underlying data
+              aes(x = water_treatment, y = total_g, color = water_treatment), # assign variables
+              width = 0.2, alpha = 0.2) +  # Adjust point size and set alpha = 0.2 for transparency
+  geom_line() +
+  geom_point(width = 0.1, alpha = 0.7) + # plot prediction points
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2, size = 0.4) + # add error bars
+  labs(title = "Predicted Impact of Water Treatment and Species on Plant Biomass", # Title
+       x = "Water treatment",  # Axis labels
+       y = "Biomass (g)") + 
+  scale_color_manual(name = "Water treatment", 
+                     values = c("Well watered" = "Skyblue",  
+                                "Drought stressed" = "Brown")) + # set colors
+  facet_wrap(~ species_name) +
+  theme_classic() + # set theme
+  theme_classic(base_family = "Times") + # change font
+  theme(panel.grid = element_blank(), # remove gridlines 
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 8),  # Adjust x axis text size and rotate for better readability
+        legend.position = "none")  # Remove legend
+
+```
+
+## d. Write a caption for your visualization
+
+This visualization illustrates the predicted effects of water treatment types---well watered and drought stressed---on the biomass of different plant species. Each point represents observed data points, while opaque lines and error bars indicate the model's predictions and their confidence intervals. The plot is faceted by species to clearly show the differential impact across species under varying water conditions.
+
+Data from Valliere, Justin; Zhang, Jacqueline; Sharifi, M.; Rundel, Philip (2019).Dryad. https://doi.org/10.5061/dryad.v0861f7.
+
+## 
