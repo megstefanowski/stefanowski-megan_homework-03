@@ -107,3 +107,24 @@ kable(model_info, # table
 ```
 
 ## b. Write a 5-6 sentence "statistical methods" section
+
+```{r}
+# Make model selection table to assess AIC 
+model.sel(model0,
+          model1, 
+          model2, 
+          model3, 
+          model4)
+
+```
+
+```{r}
+# Look at diagnostic plots for model 4
+par(mfrow = c(2, 2)) #display 4 plots in 2x2 grid
+plot(model4) # base R residuals
+```
+
+```{r}
+# Look at model 4 coefficents 
+summary(model4)
+```
