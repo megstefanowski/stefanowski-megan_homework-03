@@ -168,3 +168,36 @@ This visualization illustrates the predicted effects of water treatment types---
 Data from Valliere, Justin; Zhang, Jacqueline; Sharifi, M.; Rundel, Philip (2019).Dryad. https://doi.org/10.5061/dryad.v0861f7.
 
 ## 
+
+## e. Write a 3-4 sentence results section
+
+Model 4, which included both water treatment and plant species as predictors, best described variations in plant biomass, with a notably lower Akaike Information Criterion (AIC = 153.4) than other models and an F-statistic of 27.08, significant at p \< 0.0001. On average, well watered plants had higher biomass than those under drought stressed conditions, and Grindelia camporum showed the highest average increase in biomass. This difference was significantly higher than other species which presented lower average biomass levels, indicating a substantial variability in how different species respond to water stress.
+
+# 2. Affective visualization
+
+## a. **Describe in words what an affective visualization could look like for your personal data**
+
+One possible way to present my personal data in an affective visualization could be to plot every exercise session on a bar graph, colored by exercise type, with the y-axis points starting at my mood score before the workout and extending up to my mood score after. I could include different symbols and color combinations to incorporate other categorical variables I recorded, such as where the workout was done, who I was with, or facet the plot to also show the effect on numerical variables like exertion and how tired I was the night after the workout.
+
+## b. **Create a sketch (on paper) of your idea.**![](images/IMG_878054784A2E-1-01.jpeg)
+
+```{r}
+
+# Make a plot to use as reference for my visualization
+Exercise <- read_excel("Exercise.xls") # load data
+Exercise <- Exercise %>%
+    mutate(Index = row_number()) # Index data points chronological
+
+# Make plot
+ggplot(Exercise, aes(x = Index,
+                     y = Mood_before, yend = Mood_after, color = Exercise_type)) + # make each bar stop at mood before score and extend to mood after score
+  geom_segment(size = 1) +  
+  scale_color_brewer(palette = "Set1") +   # set colors
+  labs(title = "Mood Before and After Each Exercise Session",
+       x = "Workout (Chronological)",
+       y = "Mood Level", # add titles
+       color = "Exercise Type") + # add legend
+  theme_minimal() # set theme
+# keep gridlines to use for reference
+
+```
