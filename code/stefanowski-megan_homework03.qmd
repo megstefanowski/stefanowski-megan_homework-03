@@ -183,7 +183,7 @@ One possible way to present my personal data in an affective visualization could
 
 ```{r}
 
-# Make a plot to use as reference for my visualization
+# Make a plot to use as reference for my visualization drawing
 Exercise <- read_excel("Exercise.xls") # load data
 Exercise <- Exercise %>%
     mutate(Index = row_number()) # Index data points chronological
@@ -230,3 +230,11 @@ The authors did not provide any visual representations of the tests they ran, bu
 ## c. Aesthetic clarity
 
 The paper's visual appeal is significantly reduced by the author's reliance solely on tables, and could be improved by including different plot types and colors. While the tables are straightforward and present the findings clearly, the high data:ink ratio, although useful for examining raw data, shouldn't be the only method of presentation. The paper would benefit from including more visually engaging representations, maybe with a lower data:ink ratio, especially if it helps to emphasize key findings and the significance of the tests ran.
+
+## d. Recommendations
+
+One suggestion for an effective visualization would be to create a faceted bar chart showing the count of "Yes" and "No" responses to the different circular models, faceted to seperate graphs into "Knowledge" and "Willingness to pay" plots. The y-axis would represent count, and each circular model type would be listed on the x-axis and contain a red bar showing how many people responded "No", and a green bar to represent the number of "Yes" received.
+
+This could be plotted in R using ggplot's geom_col function. X would represent each of the 8 different circular models, with the y-axis displaying the count of responses. "Fill", would be used to assign different colors to "yes" responses vs "no" and facet_grid would create two seperate plots for categories "Knowledge" and "Willingness to support".
+
+\
