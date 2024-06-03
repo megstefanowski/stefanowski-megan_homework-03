@@ -220,3 +220,11 @@ I was inspired by Stefanie Posavec and Giorgia Lupi's Dear Data project, especia
 What are the statistical tests the authors are using to address their main research question?
 
 The authors use binomial testing, Chi-square analysis, Wilcoxon test, and Spearman correlation testing to measure comsumer attitude, awareness, and willingness to support circular fashion models across different demographics.
+
+![](images/paste-0E5CDFAF.png)
+
+## b. Visual clarity
+
+The authors did not provide any visual representations of the tests they ran, but only provided tables such as Table 2 that list their findings. The tables are organized well and the categories they use make it easy to interpret the results, but adding some visual elements such as charts or graphs could really help highlight the importance of the correlations they found in their tests. They could also improve their presentation by calculating summary statistics and including more general conclusions, using the detailed data in the tables as underlying data points. This would make the results section more impactful, highlight the most relevant elements, and paint a fuller picture of the study.\
+
+## 
