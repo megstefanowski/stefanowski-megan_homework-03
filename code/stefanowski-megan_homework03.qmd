@@ -212,3 +212,11 @@ ggplot(Exercise, aes(x = Index,
 This affective visualization plots the physical and mental health aspects of my fitness log over 37 days, presenting details like the type of exercise I did and for how long, whether I was indoors or outdoors, alone or with friends, and my mood before and after exercising, rated on a scale from 1-10. Each workout session is represented by a colored bar whose width indicates the duration---each grid square equals 20 minutes. The height of each bar shows the change in my mood from start to end.
 
 I was inspired by Stefanie Posavec and Giorgia Lupi's Dear Data project, especially Lupi's visual for "A week of books we own", which used colorful, coded boxes to display both numerical and categorical information using symbols. I started with a basic bar plot in R to use as a reference and then used Notability on my iPad to add symbols and give the piece a hand-drawn feel.
+
+# 3. Statistical critique
+
+## a. Revisit and summarize
+
+What are the statistical tests the authors are using to address their main research question?
+
+The authors use binomial testing, Chi-square analysis, Wilcoxon test, and Spearman correlation testing to measure comsumer attitude, awareness, and willingness to support circular fashion models across different demographics.
