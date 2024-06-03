@@ -1,5 +1,5 @@
 ---
-title: "stefanowski-megan_homework03"
+title: "Homework 3"
 format: html
 date: 6/2/2024
 editor: visual
@@ -11,6 +11,9 @@ forked repository: https://github.com/megstefanowski/stefanowski-megan_homework-
 # 1. Multiple linear regression
 
 ```{r}
+# supress messages and warnings
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
 # Load packages
 library(tidyverse)
 library(readxl)
