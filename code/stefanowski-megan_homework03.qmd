@@ -65,3 +65,45 @@ drought_exp_clean <- drought_exp %>%
 # Preview clean data
 head(drought_exp_clean)
 ```
+
+## a. **Make a table *or* list of all the models from class and the last one you constructed on your own. Write a caption for your table.**
+
+```{r}
+# Constructing models
+# null model
+model0 <- lm(total_g ~ 1, # formula
+             data = drought_exp_clean) # data frame
+
+# model 1: SLA, treatment, and species 
+model1 <- lm(total_g ~ sla + water_treatment + species_name,
+             data = drought_exp_clean)
+par(mfrow = c(2, 2))
+
+# model 2: SLA and treatment
+model2 <- lm(total_g ~ sla + water_treatment,
+             data = drought_exp_clean)
+# model 3: SLA and species
+model3 <- lm(total_g ~ sla + species_name, 
+             data = drought_exp_clean)
+# model 4: treatment and species 
+model4 <- lm(total_g ~ water_treatment + species_name, 
+             data = drought_exp_clean)
+```
+
+```{r}
+# Making a table
+
+# Create data frame with all model information
+model_info <- data.frame(
+  Model_Number = c("0 (null)", "1 (saturated)", 2, 3, 4),
+  Predictors = c("None", "SLA, treatment, species", "SLA, treatment", "SLA, species", "treatment, species")
+)
+
+# Make a table 
+kable(model_info, # table
+      caption = "Table 1: Comparing Predictive Models for Total Plant Biomass. This table summarizes five regression models, ranging from a null model (Model 0) with no predictors to four complex models incorporating various combinations of specific leaf area (SLA), water treatment, and species. Each row lists a model by its number and details the predictors used.", # caption 
+      col.names = c("Model", "Predictors")) # label columns
+
+```
+
+## b. Write a 5-6 sentence "statistical methods" section
